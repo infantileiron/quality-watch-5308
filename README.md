@@ -60,13 +60,15 @@ EWMA：Z₀=μ₀，Zₜ=λxₜ+(1-λ)Zₜ₋₁。随t变化的控制界限为 
 
 共享角色/运行/复核枚举：后端src/constants/enums.py；前端src/constants/enums.ts。类型在models/entities.py、schemas/entities.py及frontend/src/types/entities.ts中保持一致。
 
-环境变量：DATABASE_URL、REDIS_URL、JWT_SECRET、SEED_DEMO、TASK_MODE、ARTIFACT_DIR；Compose短名/端口/数据库口令见.env.example。SEED_DEMO默认true，失败记录日志不伪造结果；自然键insert-only，两次seed不新增、不覆盖手工修改。固定seed2207生成600观测，稳定基线与后段漂移。
+环境变量：DATABASE_URL、REDIS_URL、JWT_SECRET、SEED_DEMO、TASK_MODE、ARTIFACT_DIR、RUN_STALE_SECONDS（心跳超时判定中断，默认60秒）、HEARTBEAT_INTERVAL（心跳间隔，默认10秒）、RECOVERY_INTERVAL（中断运行扫描间隔，默认15秒）；Compose短名/端口/数据库口令见.env.example。SEED_DEMO默认true，失败记录日志不伪造结果；自然键insert-only，两次seed不新增、不覆盖手工修改。固定seed2207生成600观测，稳定基线与后段漂移。
+
+运行生命周期测试无需第三方依赖：`cd backend && python -I tests/test_run_lifecycle.py`（38项状态机/快照/并发断言）与 `python -I tests/test_worker_e2e.py`（驱动真实worker循环的崩溃恢复与重复投递端到端断言）。
 
 本地开发：安装backend/requirements.txt并配置PostgreSQL/Redis后，运行 `uvicorn src.main:app --reload`；frontend执行 `npm install && npm run dev`，通过生产Nginx或配置/api代理访问后端。
 
 ## 已知边界
 
-基线窗口的“稳定”需要质量工程师人工核查，本项目不自动证明正态性与测量系统能力，也不实施完整控制图规则集。仅EWMA超界规则；不输出过程合格保证。Redis出队后worker强杀无自动重投，需要重提；没有多人编辑乐观锁与迁移回滚。默认账号仅本地演示。
+基线窗口的“稳定”需要质量工程师人工核查，本项目不自动证明正态性与测量系统能力，也不实施完整控制图规则集。仅EWMA超界规则；不输出过程合格保证。运行出队后由worker用心跳维持“计算中”状态，进程中断（强杀/崩溃/断电）会在心跳超时后自动恢复，按排队时固化的测量数据、基线与方案快照重算；重复投递与多进程并发领取由数据库事务状态机串行化，同一运行只接受当前尝试的一份结果，旧进程迟到的结果不能覆盖新结果，恢复重投失败会在运行上写明原因。没有多人编辑乐观锁与迁移回滚。默认账号仅本地演示。
 
 真实容器、HTTP、手算oracle、浏览器操作、1440×900及响应式截图均位于批次test-artifacts/gb-2207，不混入源码目录。
 

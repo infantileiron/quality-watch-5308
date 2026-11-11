@@ -55,10 +55,10 @@ services:
       db: {condition: service_healthy}
       redis: {condition: service_healthy}
     healthcheck:
-      test: ["CMD", "python", "-c", "import time; from pathlib import Path; assert time.time()-float(Path('/tmp/worker-heartbeat').read_text())<90"]
+      test: ["CMD", "python", "-c", "import time; from pathlib import Path; assert time.time()-float(Path('/tmp/worker-heartbeat').read_text())<45"]
       interval: 10s
       timeout: 3s
-      retries: 10
+      retries: 6
   frontend:
     build: ./frontend
     container_name: ${COMPOSE_PROJECT_NAME:-quality-watch}-frontend

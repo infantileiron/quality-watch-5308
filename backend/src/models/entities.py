@@ -39,6 +39,11 @@ class ControlRun:
  result:dict[str,Any]=field(default_factory=dict)
  error:str=''
  created_at:str=''
+ queued_study:dict[str,Any]=field(default_factory=dict)
+ queued_baseline:dict[str,Any]=field(default_factory=dict)
+ queued_dataset:dict[str,Any]=field(default_factory=dict)
+ attempts:list[dict[str,Any]]=field(default_factory=list)
+ heartbeat_at:str=''
 @dataclass
 class DeviationReview:
  id:str
