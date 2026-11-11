@@ -1,0 +1,9 @@
+export type User={email:string;name:string;role:string};
+export type Dataset={id:string;name:string;source:string;row_count:number;machines:string[]};
+export type Baseline={id:string;name:string;dataset_id:string;machine:string;start:number;end:number;values:number[];mean:number;sigma:number};
+export type Study={id:string;name:string;baseline_id:string;monitoring_start:number;monitoring_end:number;smoothing:number;control_width:number;lsl:number;usl:number};
+export type Sample={sample_id:string;sequence:number;value:number;ewma:number;center:number;lcl:number;ucl:number;out_of_control:boolean;out_of_spec:boolean};
+export type Result={series:Sample[];baseline:Baseline;study:Study;machine:string;control_signals:number;first_signal:number|null;capability:{mean:number;sigma_used:number;cp:number;cpk:number;outside_count:number;sample_count:number;outside_rate:number;lsl:number;usl:number};capability_interpretation_allowed:boolean;checksum:string;limitations:string[]};
+export type Run={id:string;study_id:string;status:string;result:Result;error:string};
+export type Review={id:string;run_id:string;comment:string;status:string;reviewer:string};
+export type Report={id:string;run_id:string;review_id:string;title:string};
